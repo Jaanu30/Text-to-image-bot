@@ -1,0 +1,29 @@
+!pip install pyTelegramBotAPI requests
+!pip install torch diffusers
+!pip install accelerate
+!pip install transformers
+
+import telebot
+import requests
+from PIL import Image
+import io
+from diffusers import StableDiffusionPipeline
+import torch
+# Set up the bot with your token
+bot_token = '1468262237:AAF_-KFX_7MW36831Rx-tp4n3q1WRrKBsU0'
+bot = telebot.TeleBot(bot_token)
+
+@bot.message_handler(func=lambda message: True)
+def handle_message(message):
+    # Retrieve the message text
+    text = message.text
+
+    model_id = "dreamlike-art/dreamlike-photoreal-2.0"
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+    pipe = pipe.to("cuda")
+    prompt = text
+    image = pipe(prompt).images[0]
+    bot.send_photo(message.chat.id, image)
+
+
+bot.polling()
